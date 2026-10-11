@@ -147,6 +147,12 @@
       color: var(--ink); cursor: pointer;
     }
     .chap-story:hover { background: var(--gold); color: #fff; }
+    .story-listen {
+      font-family: inherit; font-size: .8rem; line-height: 1;
+      background: transparent; color: var(--green); border: 1px solid currentColor;
+      border-radius: 5px; padding: 3px 8px; margin-top: 6px; cursor: pointer;
+    }
+    .story-listen:hover { background: var(--green); color: #fff; }
     button:focus, a:focus, input:focus {
       outline: 3px solid var(--focus);
       outline-offset: 3px;
@@ -282,9 +288,13 @@
       else fallback();
     }
 
-    let speaking = false;
-    let listenQueue = [];
+    let playing = false;
+    let playKind = null;          // 'native' | 'audio'
+    let activeStoryId = null;
     let arVoicesReady = false;
+    let audioHalt = false;
+    const audioEl = new Audio();
+    audioEl.preload = 'auto';
 
     function arVoice() {
       return (window.speechSynthesis.getVoices() || []).find(v => /^ar[_\-]/.test(v.lang)) || null;
@@ -298,54 +308,108 @@
     }
     warmVoices();
 
-    function stopListen() {
-      if (speaking) {
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        speaking = false;
-        listenQueue = [];
-        const b = document.getElementById('listenBtn');
-        if (b) { b.textContent = '🔊 استمع'; b.title = 'قراءة الباب صوتياً'; }
-      }
+    function chapterText(chap) {
+      return chap.stories.filter(s => s.type === 'text')
+        .map(s => s.content).join(' ').replace(/\s+/g, ' ').trim();
+    }
+    function wordChunks(text, maxWords) {
+      const words = text.split(' ');
+      const out = []; let cur = [];
+      words.forEach(w => {
+        cur.push(w);
+        if (cur.length >= maxWords) { out.push(cur.join(' ')); cur = []; }
+      });
+      if (cur.length) out.push(cur.join(' '));
+      return out.length ? out : [text];
+    }
+    function charChunks(text, maxLen) {
+      const out = []; let cur = '';
+      text.split(' ').forEach(w => {
+        const nx = cur ? cur + ' ' + w : w;
+        if (nx.length > maxLen && cur) { out.push(cur); cur = w; }
+        else cur = nx;
+      });
+      if (cur) out.push(cur);
+      return out;
+    }
+    function ttsUrl(t) {
+      return 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q=' + encodeURIComponent(t);
     }
 
-    function speakInto(voice) {
-      if (!listenQueue.length) { stopListen(); return; }
-      const u = listenQueue.shift();
-      u.lang = voice ? voice.lang : 'ar';
-      if (voice) u.voice = voice;
-      const next = () => speakInto(voice);
-      u.onend = next;
-      u.onerror = next;
-      window.speechSynthesis.speak(u);
+    function setPlayUI() {
+      const c = document.getElementById('listenBtn');
+      if (c) {
+        c.textContent = playing && activeStoryId === null ? '⏹ إيقاف' : '🔊 استمع';
+        c.title = 'قراءة الباب صوتياً';
+      }
+      document.querySelectorAll('.story-listen').forEach(b => {
+        b.textContent = playing && b.getAttribute('data-id') == activeStoryId ? '⏹' : '🔊';
+      });
+    }
+
+    function stopListen() {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      audioHalt = true;
+      try { audioEl.pause(); audioEl.removeAttribute('src'); } catch (e) {}
+      playing = false;
+      playKind = null;
+      activeStoryId = null;
+      setPlayUI();
+    }
+
+    function speakNative(text) {
+      const voice = arVoice();
+      const chunks = wordChunks(text, 220);
+      const queue = chunks.slice();
+      let started = false;
+      playing = true;
+      playKind = 'native';
+      activeStoryId = null;
+      setPlayUI();
+      window.speechSynthesis.cancel();
+      const fire = () => {
+        if (!playing) return;
+        if (!queue.length) { stopListen(); return; }
+        const u = new SpeechSynthesisUtterance(queue.shift());
+        u.lang = voice ? voice.lang : 'ar';
+        if (voice) u.voice = voice;
+        u.rate = 1;
+        u.onstart = () => { started = true; };
+        u.onend = fire;
+        u.onerror = fire;
+        window.speechSynthesis.speak(u);
+      };
+      fire();
+      setTimeout(() => {
+        if (playing && playKind === 'native' && !started) { stopListen(); playAudio(text); }
+      }, 1800);
+    }
+
+    function playAudio(text) {
+      if (!text) return;
+      const parts = charChunks(text, 180);
+      let i = 0;
+      audioHalt = false;
+      playing = true;
+      playKind = 'audio';
+      setPlayUI();
+      const step = () => {
+        if (!playing || audioHalt) { if (playing) stopListen(); return; }
+        if (i >= parts.length) { stopListen(); return; }
+        audioEl.src = ttsUrl(parts[i++]);
+        audioEl.play().catch(() => { if (playing) stopListen(); });
+      };
+      audioEl.onended = () => setTimeout(step, 300);
+      audioEl.onerror = () => { if (playing) stopListen(); };
+      step();
     }
 
     function toggleListen(chap) {
-      const btn = document.getElementById('listenBtn');
-      if (!('speechSynthesis' in window)) {
-        if (btn) btn.title = 'هذا المتصفح لا يدعم القراءة الصوتية';
-        return;
-      }
-      if (speaking) { stopListen(); return; }
-      const allText = chap.stories.filter(s => s.type === 'text')
-        .map(s => s.content).join(' ').replace(/\s+/g, ' ').trim();
-      if (!allText) return;
-      const words = allText.split(' ');
-      const chunks = [];
-      let cur = [];
-      words.forEach(w => {
-        cur.push(w);
-        if (cur.length >= 250) { chunks.push(cur.join(' ')); cur = []; }
-      });
-      if (cur.length) chunks.push(cur.join(' '));
-      const voice = arVoice();
-      listenQueue = chunks.map(t => { const u = new SpeechSynthesisUtterance(t); u.rate = 1; u.pitch = 1; return u; });
-      if (!voice && !arVoicesReady) {
-        if (btn) btn.title = 'قد لا يوجد صوت عربي في هذا الجهاز؛ ستُحاول القراءة بالنظام';
-      }
-      speaking = true;
-      if (btn) { btn.textContent = '⏹ إيقاف'; btn.title = 'إيقاف القراءة'; }
-      window.speechSynthesis.cancel();
-      speakInto(voice);
+      if (playing) { stopListen(); return; }
+      const text = chapterText(chap);
+      if (!text) return;
+      if ('speechSynthesis' in window && (arVoice() || arVoicesReady)) speakNative(text);
+      else playAudio(text);
     }
 
     function show(chapId, focusStoryId, saveHistory) {
@@ -361,7 +425,8 @@
 
       const body = chap.stories.map(s => {
         if (s.type === 'heading') return '<h3 class="subhead">' + esc(s.title) + '</h3>';
-        return '<div class="story" id="story-' + s.id + '"><p>' + esc(s.content) + '</p></div>';
+        return '<div class="story" id="story-' + s.id + '"><p>' + esc(s.content) + '</p>' +
+          '<button type="button" class="story-listen" data-id="' + s.id + '" aria-label="قراءة القصة صوتياً" title="قراءة القصة صوتياً">🔊</button></div>';
       }).join('');
 
       contentEl.innerHTML =
@@ -385,7 +450,17 @@
       if (prev) document.getElementById('prevBtn').onclick = () => show(prev.id);
       if (next) document.getElementById('nextBtn').onclick = () => show(next.id);
       document.getElementById('listenBtn').onclick = () => toggleListen(chap);
-      if (next) document.getElementById('nextBtn').onclick = () => show(next.id);
+      contentEl.querySelectorAll('.story-listen').forEach(b => {
+        b.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const st = chap.stories.find(x => x.id == b.getAttribute('data-id'));
+          if (!st) return;
+          if (playing && st.id === activeStoryId) { stopListen(); return; }
+          if (playing) stopListen();
+          activeStoryId = st.id;
+          playAudio(st.content);
+        });
+      });
       document.getElementById('copyBtn').onclick = () => copyChapterText(chap);
       document.getElementById('indexBtn').onclick = renderIndexPage;
       document.getElementById('homeBtn').onclick = renderHome;
@@ -416,6 +491,7 @@
     }
 
     function renderHome() {
+      stopListen();
       contentEl.innerHTML =
         '<div class="topnav">' + fontControlsHTML() +
           '<button id="indexBtn" type="button">🔎 الفهرس</button>' +
@@ -452,6 +528,7 @@
     }
 
     function renderIndexPage() {
+      stopListen();
       const entries = [];
       CHAPTERS.forEach(c => c.stories.forEach(s => {
         if (s.type !== 'text') return;

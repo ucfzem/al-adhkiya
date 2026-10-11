@@ -25,12 +25,14 @@ Le texte est le **texte intégral authentique** issu d'OpenITI, *sans aucune inv
 ### Tashkeel (ضَبْط) des mots difficiles
 
 Les mots « المستعصية » choisis laborieusement (aʿlām rares ou ambigus, mots dont la
-lecture est piégeuse) sont vocalisés dans tout le texte — **170 positions, 27 mots**,
-existant littéralement dans le texte (corrigés à la main, sans invention). La lecture
-d'ensemble du livre reste non-vocalisée ; seuls ces mots portent leurs marques, selon la
-coutume d'édition classique. Les noms communs (sauf quelques formes ambiguës) et les noms
-illustres usuels (محمد، عثمان…) restent sans marques. La **recherche ignore les signes**
-(taper « الأسد » trouve « الْأَسَدِ »).
+lecture est piégeuse) sont vocalisés dans tout le texte, ainsi que les aʿlām usuels à
+vocalisation stable (اللَّه، مُحَمَّد، عُثْمَان، عَمْرُو، إِبْرَاهِيم…) — **≈1 919
+positions, ~63 mots**, existant littéralement dans le texte (vocalisés de façon
+idiomatique, sans invention). Règle de sécurité : « عليّ » n'est vocalisé en nom que
+s'il est suivi de « بن/ابن » (le « عَلَيَّ » prépositionnel reste nu). La lecture
+d'ensemble du livre reste non-vocalisée ; seuls les mots choisis portent leurs marques,
+selon la coutume d'édition classique. La **recherche ignore les signes** (taper « الأسد »
+trouve « الْأَسَدِ ») et les hamzas (أ/إ/آ/ؤ/ئ).
 
 ### Note philologique
 
