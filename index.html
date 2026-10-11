@@ -283,32 +283,69 @@
     }
 
     let speaking = false;
+    let listenQueue = [];
+    let arVoicesReady = false;
+
+    function arVoice() {
+      return (window.speechSynthesis.getVoices() || []).find(v => /^ar[_\-]/.test(v.lang)) || null;
+    }
+    function warmVoices() {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.getVoices();
+      const refresh = () => { arVoicesReady = !!arVoice(); };
+      refresh();
+      if (window.speechSynthesis.addEventListener) window.speechSynthesis.addEventListener('voiceschanged', refresh);
+    }
+    warmVoices();
 
     function stopListen() {
       if (speaking) {
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         speaking = false;
+        listenQueue = [];
         const b = document.getElementById('listenBtn');
-        if (b) b.textContent = '🔊 استمع';
+        if (b) { b.textContent = '🔊 استمع'; b.title = 'قراءة الباب صوتياً'; }
       }
+    }
+
+    function speakInto(voice) {
+      if (!listenQueue.length) { stopListen(); return; }
+      const u = listenQueue.shift();
+      u.lang = voice ? voice.lang : 'ar';
+      if (voice) u.voice = voice;
+      const next = () => speakInto(voice);
+      u.onend = next;
+      u.onerror = next;
+      window.speechSynthesis.speak(u);
     }
 
     function toggleListen(chap) {
       const btn = document.getElementById('listenBtn');
-      if (!('speechSynthesis' in window)) return;
+      if (!('speechSynthesis' in window)) {
+        if (btn) btn.title = 'هذا المتصفح لا يدعم القراءة الصوتية';
+        return;
+      }
       if (speaking) { stopListen(); return; }
-      const text = chap.stories.filter(s => s.type === 'text').map(s => s.content).join(' ').trim();
-      if (!text) return;
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'ar-SA';
-      const arVoice = (window.speechSynthesis.getVoices() || []).find(v => /^ar[_\-]/.test(v.lang));
-      if (arVoice) u.voice = arVoice;
-      const done = () => { speaking = false; if (btn) btn.textContent = '🔊 استمع'; };
-      u.onend = done; u.onerror = done;
+      const allText = chap.stories.filter(s => s.type === 'text')
+        .map(s => s.content).join(' ').replace(/\s+/g, ' ').trim();
+      if (!allText) return;
+      const words = allText.split(' ');
+      const chunks = [];
+      let cur = [];
+      words.forEach(w => {
+        cur.push(w);
+        if (cur.length >= 250) { chunks.push(cur.join(' ')); cur = []; }
+      });
+      if (cur.length) chunks.push(cur.join(' '));
+      const voice = arVoice();
+      listenQueue = chunks.map(t => { const u = new SpeechSynthesisUtterance(t); u.rate = 1; u.pitch = 1; return u; });
+      if (!voice && !arVoicesReady) {
+        if (btn) btn.title = 'قد لا يوجد صوت عربي في هذا الجهاز؛ ستُحاول القراءة بالنظام';
+      }
       speaking = true;
-      btn.textContent = '⏹ إيقاف';
+      if (btn) { btn.textContent = '⏹ إيقاف'; btn.title = 'إيقاف القراءة'; }
       window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(u);
+      speakInto(voice);
     }
 
     function show(chapId, focusStoryId, saveHistory) {
