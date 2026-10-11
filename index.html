@@ -228,6 +228,7 @@
     const CHAPTERS = adhkiyaData;
     const META = ADHKIYA_META;
     const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const stripTashkeel = (s) => String(s).replace(/[\u0610-\u061A\u0640\u064B-\u065F\u0670]/g, '');
 
     function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -382,7 +383,7 @@
       CHAPTERS.forEach(c => c.stories.forEach(s => {
         if (s.type !== 'text') return;
         entries.push({ chapId: c.id, chapTitle: c.title, storyId: s.id, title: s.title, text: s.content,
-          search: (c.title + ' ' + s.content).toLowerCase() });
+          search: stripTashkeel(c.title + ' ' + s.content).toLowerCase() });
       }));
       contentEl.innerHTML =
         '<div class="topnav">' + fontControlsHTML() +
@@ -407,7 +408,7 @@
       });
       const input = document.getElementById('indexSearchInput');
       input.oninput = () => {
-        const q = input.value.trim().toLowerCase();
+        const q = stripTashkeel(input.value.trim()).toLowerCase();
         let shown = 0;
         document.querySelectorAll('.index-item').forEach((btn, i) => {
           const match = !q || entries[i].search.includes(q);

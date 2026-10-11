@@ -17,6 +17,20 @@ Le texte est le **texte intégral authentique** issu d'OpenITI, *sans aucune inv
 - `all-adhkiya.js` — données embarquées (`ADHKIYA_META` + `adhkiyaData`), utilisées au runtime.
 - `data/adhkiya.json` — les mêmes données au format JSON.
 - `tools/parse_adhkiya.mjs` — le parseur mARkdown → `{book, chapters[{stories[]}]}`.
+- `tools/apply_tashkeel.mjs` — étape 2 du pipeline (après parse) : vocalise les mots
+  « مستعصية » choisis (dictionnaire `tools/hard_words.mjs`) et régénère les données.
+- `tools/tashkeel_report.txt` — rapport de vérification : chaque mot vocalisé, son nombre
+  de positions, et un échantillon contextuel.
+
+### Tashkeel (ضَبْط) des mots difficiles
+
+Les mots « المستعصية » choisis laborieusement (aʿlām rares ou ambigus, mots dont la
+lecture est piégeuse) sont vocalisés dans tout le texte — **170 positions, 27 mots**,
+existant littéralement dans le texte (corrigés à la main, sans invention). La lecture
+d'ensemble du livre reste non-vocalisée ; seuls ces mots portent leurs marques, selon la
+coutume d'édition classique. Les noms communs (sauf quelques formes ambiguës) et les noms
+illustres usuels (محمد، عثمان…) restent sans marques. La **recherche ignore les signes**
+(taper « الأسد » trouve « الْأَسَدِ »).
 
 ### Note philologique
 
