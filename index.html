@@ -207,7 +207,7 @@
     <p>النص الحرفي الكامل منقول عن نسخة <b>OpenITI</b> (JK_000910)، بلا اختلاق. وقد خلت هذه النسخة من عناوين البابين السادس عشر (من احتال بذكائه لبلوغ غرض) والخامس والعشرين (حيل المحاربين)، فوردت مادتهما متصلة بما قبلها.</p>
   </footer>
 
-  <script src="./all-adhkiya.js"></script>
+  <script src="./all-adhkiya.js?v=20261011c"></script>
   <script>
     const contentEl = document.getElementById('content');
 
@@ -233,6 +233,18 @@
     } else {
     const CHAPTERS = adhkiyaData;
     const META = ADHKIYA_META;
+    const EXPECTED_BUILD = '20261011c';
+    if (typeof META.build !== 'undefined' && META.build !== EXPECTED_BUILD) {
+      const w = document.createElement('div');
+      w.style.cssText = 'background:#7f1d1d;color:#fff;text-align:center;padding:8px;font-size:.85rem';
+      w.textContent = '⚠️ النسخة المخزّنة قديمة (' + META.build + ') — اسحب الصفحة للأسفل ثم حدّثها، أو افتح الموقع بقيمة جديدة: ?v=' + EXPECTED_BUILD;
+      document.body.prepend(w);
+    } else if (typeof META.build === 'undefined') {
+      const w = document.createElement('div');
+      w.style.cssText = 'background:#78350f;color:#fff;text-align:center;padding:8px;font-size:.85rem';
+      w.textContent = '⚠️ انتبه: هذا ملف بيانات قديم جداً — حدّث الصفحة بقيمة جديدة: ?v=' + EXPECTED_BUILD;
+      document.body.prepend(w);
+    }
     const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const stripTashkeel = (s) => String(s).replace(/[\u0610-\u061A\u0640\u064B-\u065F\u0670]/g, '');
     const normAr = (s) => stripTashkeel(s)
