@@ -1,3 +1,7 @@
 node_modules/
 .DS_Store
 *.log
+__pycache__/
+*.pyc
+*.mp3.part
+*.mp3.part.wav

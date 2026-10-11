@@ -11,6 +11,7 @@ function cleanText(s) {
   return s
     .replace(/PageV\d+P\d+/g, ' ')
     .replace(/\bms\d+g?\b/g, ' ')
+    .replace(/@[0-9A-Za-z]+@/g, ' ')
     .replace(/~~/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
