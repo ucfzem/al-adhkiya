@@ -229,6 +229,9 @@
     const META = ADHKIYA_META;
     const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const stripTashkeel = (s) => String(s).replace(/[\u0610-\u061A\u0640\u064B-\u065F\u0670]/g, '');
+    const normAr = (s) => stripTashkeel(s)
+      .replace(/[أإآ]/g, 'ا').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي')
+      .replace(/ة/g, 'ه').replace(/ى/g, 'ي');
 
     function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -279,7 +282,37 @@
       else fallback();
     }
 
+    let speaking = false;
+
+    function stopListen() {
+      if (speaking) {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        speaking = false;
+        const b = document.getElementById('listenBtn');
+        if (b) b.textContent = '🔊 استمع';
+      }
+    }
+
+    function toggleListen(chap) {
+      const btn = document.getElementById('listenBtn');
+      if (!('speechSynthesis' in window)) return;
+      if (speaking) { stopListen(); return; }
+      const text = chap.stories.filter(s => s.type === 'text').map(s => s.content).join(' ').trim();
+      if (!text) return;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'ar-SA';
+      const arVoice = (window.speechSynthesis.getVoices() || []).find(v => /^ar[_\-]/.test(v.lang));
+      if (arVoice) u.voice = arVoice;
+      const done = () => { speaking = false; if (btn) btn.textContent = '🔊 استمع'; };
+      u.onend = done; u.onerror = done;
+      speaking = true;
+      btn.textContent = '⏹ إيقاف';
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }
+
     function show(chapId, focusStoryId, saveHistory) {
+      stopListen();
       if (saveHistory !== false) {
         try { localStorage.setItem('adhkiya_last_chap', String(chapId)); } catch (e) {}
       }
@@ -296,6 +329,7 @@
 
       contentEl.innerHTML =
         '<div class="topnav">' + fontControlsHTML() +
+          '<button id="listenBtn" type="button">🔊 استمع</button>' +
           '<button id="copyBtn" type="button">📋 نسخ الباب</button>' +
           '<button id="indexBtn" type="button">🔎 الفهرس</button>' +
           '<button id="homeBtn" type="button">🏠 القائمة الرئيسية</button>' +
@@ -312,6 +346,8 @@
         '</div>';
 
       if (prev) document.getElementById('prevBtn').onclick = () => show(prev.id);
+      if (next) document.getElementById('nextBtn').onclick = () => show(next.id);
+      document.getElementById('listenBtn').onclick = () => toggleListen(chap);
       if (next) document.getElementById('nextBtn').onclick = () => show(next.id);
       document.getElementById('copyBtn').onclick = () => copyChapterText(chap);
       document.getElementById('indexBtn').onclick = renderIndexPage;
@@ -383,7 +419,7 @@
       CHAPTERS.forEach(c => c.stories.forEach(s => {
         if (s.type !== 'text') return;
         entries.push({ chapId: c.id, chapTitle: c.title, storyId: s.id, title: s.title, text: s.content,
-          search: stripTashkeel(c.title + ' ' + s.content).toLowerCase() });
+          search: normAr(c.title + ' ' + s.content).toLowerCase() });
       }));
       contentEl.innerHTML =
         '<div class="topnav">' + fontControlsHTML() +
@@ -408,7 +444,7 @@
       });
       const input = document.getElementById('indexSearchInput');
       input.oninput = () => {
-        const q = stripTashkeel(input.value.trim()).toLowerCase();
+        const q = normAr(input.value.trim()).toLowerCase();
         let shown = 0;
         document.querySelectorAll('.index-item').forEach((btn, i) => {
           const match = !q || entries[i].search.includes(q);
