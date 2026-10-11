@@ -37,7 +37,9 @@ illustres usuels (محمد، عثمان…) restent sans marques. La **recherche
 Cette copie ne comporte pas d'en-tête autonome pour les **bāb 16** (من احتال بذكائه لبلوغ غرض)
 et **bāb 25** (طرف من حيل المحاربين) ; leur matière est donc restée rattachée à la section
 précédente. La numérotation de l'édition présente une anomalie au **bāb 8**, intitulé
-« الباب الثاني » dans le texte source (fidèlement conservé).
+« الباب الثاني » dans le texte source ; cette **faute matérielle a été corrigée** dans le
+titre uniquement (sans toucher au corps du texte) : le numéro est rétabli « الباب الثامن » et
+« أصحاب نبيّا » rendu « أصحاب نبيّنا », sur le modèle du bāb 7 (« عن نبينا »).
 
 **باب 33 (fin du livre)** : dans la version imprimée, un feuillet mal relié (numéroté « 344 »,
 pour ~244) se trouve intercalé entre les pages 242 et 243 ; la copie OpenITI — comme Shamela
