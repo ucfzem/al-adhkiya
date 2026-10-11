@@ -3,7 +3,7 @@
 Édition numérique statique (mobile-first, RTL) du **كتاب الأذكياء** de l'Imam Ibn al-Jawzi (ت 597هـ),
 sur le même modèle d'ergonomie que *Nuzhat al-Mushtaq*.
 
-- **Recherche instantanée** dans le texte complet (32 sections, 669 anecdotes).
+- **Recherche instantanée** dans le texte complet (32 sections, 672 anecdotes).
 - **Navigation par chapitres** (باب) avec dépliage des anecdotes.
 - **Typographie réglable** : Amiri pour le corps, Cairo pour l'interface ; A− / A / A+.
 - **Mode sombre / clair** persistant ; reprise de la dernière lecture.
@@ -24,6 +24,15 @@ Cette copie ne comporte pas d'en-tête autonome pour les **bāb 16** (من اح�
 et **bāb 25** (طرف من حيل المحاربين) ; leur matière est donc restée rattachée à la section
 précédente. La numérotation de l'édition présente une anomalie au **bāb 8**, intitulé
 « الباب الثاني » dans le texte source (fidèlement conservé).
+
+**باب 33 (fin du livre)** : dans la version imprimée, un feuillet mal relié (numéroté « 344 »,
+pour ~244) se trouve intercalé entre les pages 242 et 243 ; la copie OpenITI — comme Shamela
+6938 — reproduit ce défaut, ce qui a brisé en fin de volume l'ordre des anecdotes (le lion/loup/
+renard, qīla lil-dhiʾb, le ḍabb, le mukhāṭab, la hadāʾ, le puits, Abu Ayyūb, les deux ḍabbīʿ).
+L'ordre correct — vérifié sur l'édition islamicbook.ws (aladkia-002) et un article d'al-Jazīrah —
+a été rétabli dans `tools/parse_adhkiya.mjs` en **réordonnant littéralement les mots d'OpenITI,
+sans aucune suppression ni ajout** (la réponse du renard se lit désormais « رأسُ الذئبِ النادرِ
+بينَ عيني »).
 
 ## Structure
 

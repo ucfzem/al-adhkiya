@@ -81,3 +81,28 @@ index + recherche instantanée sur le texte complet, impression.
 - Dépôt : https://github.com/ucfzem/al-adhkiya
 - Link tree : https://ucfzem.github.io/works/
 - Source : https://github.com/openiti/release (0597IbnJawzi.Adhkiya)
+
+## Corréction du bāb 33 (fin du livre) — histoire du lion / loup / renard
+
+**Symptôme** : les dernières anecdotes du livre étaient embrouillées : la réponse du renard
+(« رأس الذئب النادر بين عيني ») manquait et la fin de la fable du lion avait été remplacée par
+la fin de l'histoire du puits (« ...له فأخذ في التحيل فلاح له ضوء فنقب فخرج به إلى قضاء
+فتخلص وخلصهما »).
+
+**Cause** : feuillet mal relié dans la version imprimée (numéroté « 344 » au lieu de ~244),
+intercalé entre les pages 242 et 243. OpenITI JK_000910 reproduit le défaut, comme Shamela 6938
+et le site shamela.ws. L'ordre correct a été confirmé via islamicbook.ws (aladkia-002.html) et un
+article d'al-Jazirah.
+
+**Correctif dans `tools/parse_adhkiya.mjs`** : fonction `reconstructBab33()` qui réordonne
+littéralement les mots d'OpenITI (aucune suppression ni ajout) pour rétablir l'ordre :
+الأسد → قيل للذئب → الضب → المخاطب → الحدأة → البئر (avec son vrai tail) → أبو أيوب →
+الضبع والظبية → الضبع والثعلب → وليمة الطائر.
+
+**Vérifié** :
+- Les 31 premiers chapitres restent identiques mot pour mot (JSON byte-identical) à la version
+  déjà publiée.
+- Seul le bāb 33 change : 669 → **672** anecdotes au total (éclatement des paragraphes mélangés).
+- Le texte du lion se termine désormais «...قال رأس الذئب النادر بين عيني » et l'histoire du
+  puits complète («...فحلفا له فأخذ في التحيل فلاح له ضوء فنقب فخرج به إلى قضاء فتخلص
+  وخلصهما »).

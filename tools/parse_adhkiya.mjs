@@ -1,6 +1,11 @@
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const raw = fs.readFileSync('/tmp/adhkiya.mARkdown', 'utf8');
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(HERE, '..');
+
+const raw = fs.readFileSync(path.join(HERE, 'source.mARkdown'), 'utf8');
 
 function cleanText(s) {
   return s
@@ -11,10 +16,105 @@ function cleanText(s) {
     .trim();
 }
 
-const lines = raw.split('\n');
+//
+// إعادة بناء ذيل الباب الثالث والثلاثون (نهاية الكتاب).
+//
+// في النسخة المطبوعة وُضع ورقٌ مقحمٌ في غير موضعه بين الصفحتين 242 و 243، فانكسر
+// ترتيبُ الأخبار عند نهاية الكتاب: ابتدأ خبر «الأسد والذئب والثعلب» ثم أُقحم في
+// مقطعه ذيلُ خبر «البئر» وخبرُ «أبي أيوب المرزباني» وخبرا «الضبع»، بينما بقيت
+// تتمة خبر الأسد (الجواب «رأس الذئب النادر بين عيني») عالقةً بعدهم.
+//
+// نعيد هنا ترتيبَ النص عينه وفق المطبوعة الصحيحة (مقابلاً بطبعة islamicbook.ws):
+// قصة الأسد، ثم قيل للذئب، ثم الضب، ثم المخاطب، ثم الحدأة، ثم البئر بتمامها،
+// ثم أبو أيوب، ثم الضبع والظبية، ثم الضبع والثعلب، ثم وليمة الطائر —
+// دون حذف أو زيادة أي لفظ من نص المصدر.
+//
+function splitExact(line, sep, label) {
+  const i = line.indexOf(sep);
+  if (i < 0) throw new Error('reconstructBab33: فاصل مفقود — ' + label);
+  return [line.slice(0, i), line.slice(i + sep.length)];
+}
+
+function reconstructBab33(lines) {
+  const lionIdx = lines.findIndex((l) => l.startsWith('# ') && l.includes('حدثنا المعافي'));
+  const birdIdx = lines.findIndex((l, i) => i > lionIdx && l.startsWith('# ') && l.includes('أولم طائر'));
+  if (lionIdx < 0 || birdIdx < 0) throw new Error('reconstructBab33: مفاتيح الكتلة مفقودة');
+  const b = lines.slice(lionIdx, birdIdx);
+
+  const abuIdx = b.findIndex((l) => l.startsWith('# ') && l.includes('أبو أيوب المرزباني'));
+  const dzIdx = b.findIndex((l) => l.startsWith('# ') && l.includes('ورأت الضبع ظبية'));
+  const hfIdx = b.findIndex((l) => l.startsWith('# ') && l.includes('وصادت الضبع ثعلبا'));
+  const mukhIdx = b.findIndex((l) => l.startsWith('# ') && l.includes('حدث المخاطب'));
+  const wellIdx = b.findIndex((l) => l.startsWith('# ') && l.includes('كان رجل في صحراء'));
+  for (const [name, i] of [['أبو أيوب', abuIdx], ['الضبع والظبية', dzIdx], ['الضبع والثعلب', hfIdx], ['المخاطب', mukhIdx], ['البئر', wellIdx]]) {
+    if (i < 0) throw new Error('reconstructBab33: خبر مفقود — ' + name);
+  }
+
+  const [lionDiv2, wellTail4] = splitExact(b[2], ' PageV01P242 ', 'قسمة الأسد');
+  const [hyenaHead, lionMid23] = splitExact(b[hfIdx + 2], ' فأفلت الثعلب', 'حيلة الضبع');
+  const [lionEnd28, wisdom29] = splitExact(b[hfIdx + 6], ' وذكر الحكماء', 'جواب الأسد');
+  const [qilEnd30, dabbStart30] = splitExact(b[hfIdx + 8], ' وذكر أبو هلال العسكري', 'قيل للذئب');
+  const [mukhEnd38, hadahStart38] = splitExact(b[mukhIdx + 2], ' قالوا وصادت حدأة', 'المخاطب');
+  const [wellEnd46] = splitExact(b[wellIdx + 4], ' PageV01P243', 'البئر');
+
+  const noPfx = (s) => s.replace(/^# /, '').replace(/^~~/, '');
+  const cont = (s) => '~~' + noPfx(s).trim();
+  const par = (s) => '# ' + noPfx(s).trim();
+
+  const lion = [
+    b[0],
+    b[1],
+    lionDiv2,
+    cont('معاوية ' + b[hfIdx + 3]),
+    b[hfIdx + 4],
+    b[hfIdx + 5],
+    lionEnd28,
+  ];
+  const qil = [
+    par(wisdom29),
+    b[hfIdx + 7],
+    qilEnd30,
+  ];
+  const dabb = [
+    par(dabbStart30),
+    b[hfIdx + 9],
+    b[hfIdx + 10],
+    b[hfIdx + 11],
+    b[hfIdx + 12],
+    b[hfIdx + 13],
+  ];
+  const mukh = [
+    b[mukhIdx],
+    b[mukhIdx + 1],
+    mukhEnd38,
+  ];
+  const hadah = [
+    par(hadahStart38),
+    b[mukhIdx + 3],
+    b[mukhIdx + 4],
+    b[mukhIdx + 5],
+  ];
+  const well = [
+    b[wellIdx],
+    b[wellIdx + 1],
+    b[wellIdx + 2],
+    b[wellIdx + 3],
+    wellEnd46,
+    cont(wellTail4 + ' ' + noPfx(b[3])),
+  ];
+  const abu = [b[abuIdx], ...b.slice(abuIdx + 1, dzIdx)];
+  const dz = [b[dzIdx], ...b.slice(dzIdx + 1, hfIdx)];
+  const dbt = [b[hfIdx], b[hfIdx + 1], hyenaHead];
+
+  const fixed = [...lion, ...qil, ...dabb, ...mukh, ...hadah, ...well, ...abu, ...dz, ...dbt];
+  return [...lines.slice(0, lionIdx), ...fixed, ...lines.slice(birdIdx)];
+}
+
+const lines = reconstructBab33(raw.split('\n'));
+
 const groups = [];
 let cur = null;
-const push = () => { if (cur && cur.parts.some(p => p.trim())) groups.push(cur); };
+const push = () => { if (cur && cur.parts.some((p) => p.trim())) groups.push(cur); };
 
 for (const line of lines) {
   if (/^#META#/.test(line) || /^######/.test(line)) continue;
@@ -51,8 +151,8 @@ function addStory(chapter, g) {
 
 for (const g of groups) {
   if (g.type === 'heading' && isBab(g.text)) {
-if (current.stories.length) chapters.push(current);
-chapters.forEach((c, i) => { c.id = i; });
+    if (current.stories.length) chapters.push(current);
+    chapters.forEach((c, i) => { c.id = i; });
     current = { id: chapters.length + 1, title: g.text, stories: [] };
     continue;
   }
@@ -70,11 +170,22 @@ const meta = {
 };
 
 const out = { book: meta, chapters };
-fs.writeFileSync('/tmp/adhkiya.json', JSON.stringify(out));
+fs.writeFileSync(path.join(ROOT, 'data/adhkiya.json'), JSON.stringify(out));
 
-const totalStories = chapters.reduce((a, c) => a + c.stories.filter(s => s.type === 'text').length, 0);
+const js = [
+  '// بيانات كتاب الأذكياء — ابن الجوزي (ت 597هـ)',
+  '// المصدر: OpenITI 0597IbnJawzi.Adhkiya (JK_000910) — نص حرفي، بلا اختلاق.',
+  '// أُعيد ترتيب ذيل الباب الثالث والثلاثون (ورق مقحم في المطبوع) وفق المطبوعة',
+  '// الصحيحة، بنفس ألفاظ المصدر دون حذف أو زيادة (انظر tools/parse_adhkiya.mjs).',
+  'const ADHKIYA_META = ' + JSON.stringify(out.book) + ';',
+  '',
+  'const adhkiyaData = ' + JSON.stringify(out.chapters) + ';',
+].join('\n');
+fs.writeFileSync(path.join(ROOT, 'all-adhkiya.js'), js);
+
+const totalStories = chapters.reduce((a, c) => a + c.stories.filter((s) => s.type === 'text').length, 0);
 console.log('chapters:', chapters.length);
 console.log('total text stories:', totalStories);
-console.log('json bytes:', fs.statSync('/tmp/adhkiya.json').size);
-console.log('--- chapter list ---');
-chapters.forEach(c => console.log(String(c.id).padStart(2), '(' + c.stories.filter(s => s.type === 'text').length + ' stories)', c.title.slice(0, 60)));
+console.log('--- chapter 33 stories ---');
+const c33 = chapters[chapters.length - 1];
+c33.stories.forEach((s) => console.log(String(s.id).padStart(3), s.type === 'heading' ? '[HEAD]' : '      ', s.title.slice(0, 60)));
