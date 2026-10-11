@@ -207,7 +207,8 @@
     <p>النص الحرفي الكامل منقول عن نسخة <b>OpenITI</b> (JK_000910)، بلا اختلاق. وقد خلت هذه النسخة من عناوين البابين السادس عشر (من احتال بذكائه لبلوغ غرض) والخامس والعشرين (حيل المحاربين)، فوردت مادتهما متصلة بما قبلها.</p>
   </footer>
 
-  <script src="./all-adhkiya.js?v=20261011c"></script>
+  <script src="./all-adhkiya.js?v=20261011d"></script>
+  <script src="./audio/manifest.js?v=20261011d"></script>
   <script>
     const contentEl = document.getElementById('content');
 
@@ -233,7 +234,7 @@
     } else {
     const CHAPTERS = adhkiyaData;
     const META = ADHKIYA_META;
-    const EXPECTED_BUILD = '20261011c';
+    const EXPECTED_BUILD = '20261011d';
     if (typeof META.build !== 'undefined' && META.build !== EXPECTED_BUILD) {
       const w = document.createElement('div');
       w.style.cssText = 'background:#7f1d1d;color:#fff;text-align:center;padding:8px;font-size:.85rem';
@@ -373,13 +374,13 @@
       setPlayUI();
     }
 
-    function speakNative(text) {
+    function speakNative(text, sid) {
       const voice = arVoice();
       const chunks = wordChunks(text, 220);
       const queue = chunks.slice();
       playing = true;
       playKind = 'native';
-      activeStoryId = null;
+      activeStoryId = sid || null;
       setPlayUI();
       window.speechSynthesis.cancel();
       const fire = () => {
@@ -398,48 +399,70 @@
           if (playing && playKind === 'native' && !started) {
             stopListen();
             const rest = text.split(' ').slice(- (queue.length * 220)).join(' ');
-            playAudio(rest || text);
+            playLiveText(rest || text, sid);
           }
         }, 2000);
       };
       fire();
     }
 
-    function playAudio(text) {
-      if (!text) return;
-      const parts = charChunks(text, 180);
-      let i = 0;
+    function hostedParts(storyId) {
+      return (typeof ADHKIYA_AUDIO !== 'undefined' && ADHKIYA_AUDIO[storyId]) ? ADHKIYA_AUDIO[storyId] : null;
+    }
+
+    function storyItems(st) {
+      const hp = hostedParts(st.id);
+      if (hp) return hp.map(u => ({ url: u }));
+      return charChunks(stripTashkeel(st.content).replace(/@[^@]*@/g, ' ').replace(/[%•]/g, ' ').replace(/\s+/g, ' ').trim(), 180).map(t => ({ text: t }));
+    }
+
+    function chapterItems(chap) {
+      const items = [];
+      chap.stories.forEach(s => {
+        if (s.type !== 'text') return;
+        const hp = hostedParts(s.id);
+        if (hp) hp.forEach(u => items.push({ url: u }));
+        else charChunks(stripTashkeel(s.content).replace(/@[^@]*@/g, ' ').replace(/[%•]/g, ' ').replace(/\s+/g, ' ').trim(), 180).forEach(t => items.push({ text: t }));
+      });
+      return items;
+    }
+
+    function playSeq(items, storyId) {
+      if (!items || !items.length) { stopListen(); return; }
+      const plan = items.slice();
+      let idx = 0;
       let consec = 0;
       audioHalt = false;
       playing = true;
       playKind = 'audio';
+      activeStoryId = storyId || null;
       setPlayUI();
-      const tryChunk = (attempt) => {
+      const step = (retries) => {
         if (!playing || audioHalt) { if (playing) stopListen(); return; }
-        if (i >= parts.length) { stopListen(); return; }
-        const ep = TTS_ENDPOINTS[(i + attempt) % TTS_ENDPOINTS.length];
-        audioEl.src = ttsUrl(parts[i], ep);
+        if (idx >= plan.length) { stopListen(); return; }
+        const it = plan[idx];
+        audioEl.src = it.url ? it.url : ttsUrl(it.text, TTS_ENDPOINTS[(idx + retries) % TTS_ENDPOINTS.length]);
         audioEl.onerror = () => {
-          if (!playing) return;
-          if (attempt < TTS_ENDPOINTS.length) setTimeout(() => tryChunk(attempt + 1), 1500);
-          else {
+          if (!playing || audioHalt) return;
+          if (retries < 2) { setTimeout(() => step(retries + 1), 1200); return; }
+          if (!it.url) {
             consec++;
-            if (consec >= 3) { failMessage(); return; }
-            i++; setTimeout(() => tryChunk(0), 2000);
+            if (consec >= 4) { failMessage(); return; }
           }
+          idx++; setTimeout(() => step(0), 400);
         };
+        audioEl.onended = () => { if (playing) setTimeout(() => { idx++; step(0); }, 350); };
         audioEl.play().catch(() => {
-          if (!playing) return;
-          if (attempt < TTS_ENDPOINTS.length) setTimeout(() => tryChunk(attempt + 1), 1500);
-          else {
-            consec++;
-            if (consec >= 3) { failMessage(); return; }
-            i++; setTimeout(() => tryChunk(0), 2000);
-          }
+          if (!playing || audioHalt) return;
+          if (retries < 2) { setTimeout(() => step(retries + 1), 1200); return; }
+          idx++; setTimeout(() => step(0), 400);
         });
       };
-      audioEl.onended = () => { i++; setTimeout(() => tryChunk(0), 700); };
-      tryChunk(0);
+      step(0);
+    }
+
+    function playLiveText(text, sid) {
+      playSeq(charChunks(stripTashkeel(text).replace(/@[^@]*@/g, ' ').replace(/[%•]/g, ' ').replace(/\s+/g, ' ').trim(), 180).map(t => ({ text: t })), sid);
     }
 
     function failMessage() {
@@ -458,10 +481,11 @@
 
     function toggleListen(chap) {
       if (playing) { stopListen(); return; }
-      const text = chapterText(chap);
-      if (!text) return;
-      if ('speechSynthesis' in window && (arVoice() || arVoicesReady)) speakNative(text);
-      else playAudio(text);
+      const items = chapterItems(chap);
+      if (!items.length) return;
+      const hostedCount = items.filter(it => it.url).length;
+      if (hostedCount === 0 && 'speechSynthesis' in window && (arVoice() || arVoicesReady)) speakNative(chapterText(chap), null);
+      else playSeq(items, null);
     }
 
     function show(chapId, focusStoryId, saveHistory) {
@@ -509,8 +533,10 @@
           if (!st) return;
           if (playing && st.id === activeStoryId) { stopListen(); return; }
           if (playing) stopListen();
-          activeStoryId = st.id;
-          playAudio(st.content);
+          const hp = hostedParts(st.id);
+          if (hp) playSeq(hp.map(u => ({ url: u })), st.id);
+          else if ('speechSynthesis' in window && (arVoice() || arVoicesReady)) speakNative(st.content, st.id);
+          else playLiveText(st.content, st.id);
         });
       });
       document.getElementById('copyBtn').onclick = () => copyChapterText(chap);

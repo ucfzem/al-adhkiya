@@ -95,7 +95,7 @@ for (const s of ALI_HIT.samples) report += '   ▪ ' + s.chap + ' — …' + s.c
 fs.writeFileSync(path.join(ROOT, 'tools/tashkeel_report.txt'), report);
 
 data.book.tashkeel = 'ضُبطت الكلمات المستعصية المختارة في كامل النص؛ عدد المواضع: ' + total;
-data.book.build = '20261011c';
+data.book.build = '20261011d';
 fs.writeFileSync(path.join(ROOT, 'data/adhkiya.json'), JSON.stringify(data));
 
 const js = [
