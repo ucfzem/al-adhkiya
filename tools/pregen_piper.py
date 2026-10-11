@@ -10,7 +10,7 @@ import os, re, sys, time, json, wave, subprocess, concurrent.futures
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AUDIO = os.path.join(ROOT, 'audio')
-BUILD = '20261011f'
+BUILD = '20261011g'
 MODEL = '/tmp/piperv/ar_JO-kareem-medium.onnx'
 FFMPEG = ('/tmp/ttsvenv/lib/python3.11/site-packages/imageio_ffmpeg/binaries/'
           'ffmpeg-linux-aarch64-v7.0.2')

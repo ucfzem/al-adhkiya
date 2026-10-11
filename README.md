@@ -45,6 +45,12 @@ suivre l'ordre du livre (le corps du texte reste intact), avec deux leçons mat�
 (conformément au thème du livre), soit :
 « الباب الثامن: في سياق المنقول من فطنة أصحاب نبيّنا رضي الله عنهم أجمعين ».
 
+Dans ce même bāb 8, le vers d'Ibn Rawāḥah a été corrigé selon les deux Ṣaḥīḥ (البخاري ١١٥٥) :
+« ببيت يجافي جنبه على فراشه » ➔ « يبيت يجافي جنبه عن فراشه » (simple coquille de copiste). Une
+petite note de **تخريج** a été ajoutée en fin de bāb : les vers sont dans le Ṣaḥīḥ al-Bukhārī (n° 1155,
+via Abū Hurayra, صحيح) ; en revanche l'anecdote de la jāriya et du couteau est rapportée par
+al-Dāraquṭnī (منقطعة / مرسلة, pas dans les deux Ṣaḥīḥ).
+
 **باب 33 (fin du livre)** : dans la version imprimée, un feuillet mal relié (numéroté « 344 »,
 pour ~244) se trouve intercalé entre les pages 242 et 243 ; la copie OpenITI — comme Shamela
 6938 — reproduit ce défaut, ce qui a brisé en fin de volume l'ordre des anecdotes (le lion/loup/

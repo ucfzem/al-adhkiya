@@ -7,14 +7,22 @@ const ROOT = path.resolve(HERE, '..');
 
 const raw = fs.readFileSync(path.join(HERE, 'source.mARkdown'), 'utf8');
 
+// تصحيحات نصّية مبنية على الروايات (تُطبَّق عند البناء فيُعيد إنتاجَها دائماً):
+// بيت ابن رواحة: الصواب في الصحيحين «يبيت يجافي جنبه عن فراشه» — والمصدر «ببيت … على فراشه».
+const TEXT_FIXES = [
+  ['ببيت يجافي جنبه على فراشه', 'يبيت يجافي جنبه عن فراشه'],
+];
+
 function cleanText(s) {
-  return s
+  let out = s
     .replace(/PageV\d+P\d+/g, ' ')
     .replace(/\bms\d+g?\b/g, ' ')
     .replace(/@[0-9A-Za-z]+@/g, ' ')
     .replace(/~~/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+  for (const [from, to] of TEXT_FIXES) out = out.split(from).join(to);
+  return out;
 }
 
 //
