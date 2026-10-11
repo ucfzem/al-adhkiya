@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>كتاب الأذكياء — ابن الجوزي</title>
+  <meta name="description" content="عرض أمين لكتاب الأذكياء لابن الجوزي (ت 597هـ): ثلاثة وثلاثون باباً في أخبار الأذكياء وفطنتهم ودقائق حيلهم، بالبحث الفوري وتعديل الخط.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #2b2118;
+      --paper: #faf5e9;
+      --panel: #f2e9d6;
+      --green: #1f5c46;
+      --gold: #a9792f;
+      --line: #d8c9a8;
+      --card: #fffdf6;
+      --modern-card: #f1f6f2;
+      --accent-text: #7c5620;
+      --muted: #7a6a50;
+      --header-text: #f5eeda;
+      --focus: #ffd166;
+      --content-font-size: 1rem;
+    }
+    [data-theme="dark"] {
+      --ink: #ece4d3;
+      --paper: #16130e;
+      --panel: #241f16;
+      --green: #4e9a73;
+      --gold: #d3a34a;
+      --line: #3a3225;
+      --card: #1e1912;
+      --modern-card: #131b17;
+      --accent-text: #d9b977;
+      --muted: #9a8a6c;
+      --header-text: #f5eeda;
+      --focus: #ffd166;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Cairo", "Segoe UI", "Tahoma", "Geeza Pro", "Noto Naskh Arabic", sans-serif;
+      line-height: 1.9;
+      overflow-x: clip;
+    }
+    header {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      background: var(--green);
+      color: var(--header-text);
+      padding: 14px 20px;
+    }
+    #themeToggle {
+      flex-shrink: 0; width: 42px; height: 42px; border-radius: 8px; cursor: pointer;
+      font-size: 1.2rem; line-height: 1;
+      background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.35); color: #fff;
+    }
+    #themeToggle:hover { background: rgba(255,255,255,.28); }
+    header h1 { margin: 0; font-size: 1.3rem; }
+    header p { margin: 4px 0 0; font-size: .85rem; opacity: .85; }
+    main { flex: 1; padding: 24px 30px; max-width: 900px; margin: 0 auto; }
+    .topnav { display: flex; justify-content: flex-end; margin-bottom: 10px; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .topnav button {
+      font-family: inherit; font-size: .82rem;
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: 6px; padding: 5px 14px; cursor: pointer; color: var(--ink);
+    }
+    .topnav button:hover { background: var(--gold); color: #fff; }
+    .topnav button.copied { background: var(--green); color: #fff; }
+    .topnav .font-row { display: flex; gap: 4px; margin-inline-end: auto; }
+    .card p, .modern p {
+      font-size: calc(var(--content-font-size, 1rem) * 1.15);
+      line-height: 1.95;
+      font-family: 'Amiri', 'Traditional Arabic', 'Scheherazade New', 'Lateef', serif;
+      text-align: justify;
+      overflow-wrap: break-word;
+    }
+    .index-input {
+      width: 100%; padding: 14px; font-size: 1.1rem;
+      border: 1px solid var(--line); border-radius: 8px;
+      background: var(--card); color: var(--ink); font-family: inherit;
+      margin-bottom: 20px; box-sizing: border-box;
+    }
+    .index-results { display: flex; flex-direction: column; gap: 8px; max-height: 62vh; overflow-y: auto; }
+    .index-item {
+      text-align: right; padding: 12px; border-radius: 6px;
+      border: 1px solid var(--line); background: var(--card);
+      font-family: inherit; color: var(--ink); cursor: pointer;
+    }
+    .index-item:hover { background: var(--gold); color: #fff; }
+    .index-item strong { color: var(--gold); display: block; font-size: .82rem; margin-bottom: 4px; }
+    .index-item:hover strong { color: #fff; }
+    .index-item .excerpt { font-family: 'Amiri', serif; font-size: 1.05rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-inline-start: 4px solid var(--gold);
+      border-radius: 8px; padding: 18px 22px; margin-bottom: 16px;
+    }
+    .card h2 { margin: 0 0 8px; font-size: 1.25rem; color: var(--accent-text); }
+    .kicker { font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
+    .story { margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px dashed var(--line); }
+    .story:last-child { border-bottom: none; }
+    .story.flash { background: rgba(255, 209, 102, .18); border-radius: 6px; }
+    .subhead { margin: 22px 0 10px; font-size: 1.1rem; color: var(--green); }
+    .pager { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
+    .pager button {
+      font-family: inherit; font-weight: bold;
+      background: var(--green); color: #fff; border: none;
+      border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: .9rem;
+    }
+    .pager button:hover { filter: brightness(1.1); }
+    .pager button:disabled { opacity: .35; cursor: default; }
+    .pager span { align-self: center; font-size: .85rem; color: var(--muted); }
+    .home { text-align: center; padding: 30px 10px; }
+    .empty { color: var(--muted); font-style: italic; font-size: 1rem; }
+    .home h1 { color: var(--accent-text); font-size: 1.8rem; }
+    .home .desc { max-width: 640px; margin: 12px auto; font-size: .95rem; }
+    .chap-list {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 8px; margin-top: 18px; align-items: start; text-align: right;
+    }
+    .chap-item { display: flex; flex-direction: column; }
+    .chap-btn {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: 6px; padding: 10px; cursor: pointer;
+      font-family: inherit; font-weight: bold; color: var(--ink); text-align: right;
+    }
+    .chap-btn:hover { background: var(--gold); color: #fff; }
+    .chap-stories {
+      max-height: 0; overflow: hidden;
+      transition: max-height .25s ease;
+      background: var(--card);
+    }
+    .chap-stories.open {
+      max-height: 340px; overflow-y: auto;
+      border: 1px solid var(--line); border-top: none;
+      border-radius: 0 0 6px 6px;
+    }
+    .chap-story {
+      display: block; width: 100%; text-align: right;
+      background: transparent; border: none; border-bottom: 1px solid var(--line);
+      padding: 7px 10px; font-family: 'Amiri', serif; font-size: .9rem;
+      color: var(--ink); cursor: pointer;
+    }
+    .chap-story:hover { background: var(--gold); color: #fff; }
+    button:focus, a:focus, input:focus {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+      box-shadow: 0 0 0 6px rgba(255, 209, 102, .35);
+    }
+    footer {
+      text-align: center; font-size: .78rem; color: var(--muted);
+      padding: 14px; border-top: 1px solid var(--line); line-height: 1.8;
+    }
+    @media (min-width: 1400px) {
+      main { max-width: 1050px; }
+      .chap-list { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+      .chap-btn { font-size: 1.15rem; padding: 16px 14px; }
+    }
+    @media (max-width: 700px) {
+      main { padding: 16px 12px; }
+      .pager { flex-wrap: wrap; }
+      .pager button { flex: 1; min-width: 120px; }
+      header { padding: 12px 14px; }
+      header h1 { font-size: 1.1rem; }
+    }
+    @media print {
+      .topnav, .pager { display: none !important; }
+      main { padding: 0; max-width: none; }
+    }
+  </style>
+  <script id="themeBoot">
+    (function () {
+      var t = 'dark';
+      try {
+        t = localStorage.getItem('adhkiya_theme') ||
+          (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      } catch (e) {}
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>📜 كتاب الأذكياء</h1>
+      <p>للإمام ابن الجوزي (ت 597هـ) — ٣٣ باباً في أخبار الأذكياء وفطنتهم ودقائق حيلهم</p>
+    </div>
+    <button id="themeToggle" aria-label="تبديل الوضع النهاري/الليلي" title="تبديل الوضع النهاري/الليلي">🌙</button>
+  </header>
+
+  <main id="content"></main>
+
+  <footer>
+    <p>📜 <b>كتاب الأذكياء</b> — جمال الدين أبو الفرج عبد الرحمن بن علي بن محمد الجوزي (ت 597هـ / 1201م).</p>
+    <p>النص الحرفي الكامل منقول عن نسخة <b>OpenITI</b> (JK_000910)، بلا اختلاق. وقد خلت هذه النسخة من عناوين البابين السادس عشر (من احتال بذكائه لبلوغ غرض) والخامس والعشرين (حيل المحاربين)، فوردت مادتهما متصلة بما قبلها.</p>
+  </footer>
+
+  <script src="./all-adhkiya.js"></script>
+  <script>
+    const contentEl = document.getElementById('content');
+
+    function setupThemeToggle() {
+      const btn = document.getElementById('themeToggle');
+      if (!btn) return;
+      const getTheme = () => document.documentElement.getAttribute('data-theme') || 'dark';
+      const update = () => { btn.textContent = getTheme() === 'dark' ? '☀️' : '🌙'; };
+      update();
+      btn.addEventListener('click', () => {
+        const next = getTheme() === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        update();
+        try { localStorage.setItem('adhkiya_theme', next); } catch (e) {}
+      });
+    }
+    setupThemeToggle();
+
+    if (typeof adhkiyaData === 'undefined' || typeof ADHKIYA_META === 'undefined') {
+      contentEl.innerHTML =
+        '<div class="home"><p class="empty">⚠️ خطأ: لم يتم تحميل ملف البيانات all-adhkiya.js.<br>' +
+        'تأكد من رفعه في نفس مجلد index.html.</p></div>';
+    } else {
+    const CHAPTERS = adhkiyaData;
+    const META = ADHKIYA_META;
+    const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    let currentFontSize = 1;
+    try { currentFontSize = parseFloat(localStorage.getItem('adhkiya_font_size')) || 1; } catch (e) {}
+
+    function applyFontSize() {
+      document.documentElement.style.setProperty('--content-font-size', currentFontSize + 'rem');
+      try { localStorage.setItem('adhkiya_font_size', String(currentFontSize)); } catch (e) {}
+    }
+
+    function fontControlsHTML() {
+      return '<span class="font-row">' +
+        '<button type="button" id="fontDecBtn" title="تصغير الخط">A−</button>' +
+        '<button type="button" id="fontResetBtn" title="الخط الافتراضي">A</button>' +
+        '<button type="button" id="fontIncBtn" title="تكبير الخط">A+</button>' +
+      '</span>';
+    }
+
+    function setupFontControls() {
+      const dec = document.getElementById('fontDecBtn');
+      const reset = document.getElementById('fontResetBtn');
+      const inc = document.getElementById('fontIncBtn');
+      if (dec) dec.onclick = () => { if (currentFontSize > 0.8) { currentFontSize = Math.round((currentFontSize - 0.1) * 10) / 10; applyFontSize(); } };
+      if (reset) reset.onclick = () => { currentFontSize = 1; applyFontSize(); };
+      if (inc) inc.onclick = () => { if (currentFontSize < 1.8) { currentFontSize = Math.round((currentFontSize + 0.1) * 10) / 10; applyFontSize(); } };
+    }
+
+    function copyChapterText(chap) {
+      const text = chap.title + '\n\n' + chap.stories
+        .map(s => s.type === 'heading' ? s.title : s.content)
+        .filter(Boolean).join('\n\n');
+      const b = () => document.getElementById('copyBtn');
+      const done = () => {
+        const btn = b(); if (!btn) return;
+        btn.textContent = '✓ تم النسخ'; btn.classList.add('copied');
+        setTimeout(() => { if (btn.isConnected) { btn.textContent = '📋 نسخ الباب'; btn.classList.remove('copied'); } }, 1600);
+      };
+      const fail = () => { const btn = b(); if (btn) btn.textContent = '⚠️ تعذر النسخ'; };
+      const fallback = () => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { fail(); }
+        document.body.removeChild(ta);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+      else fallback();
+    }
+
+    function show(chapId, focusStoryId, saveHistory) {
+      if (saveHistory !== false) {
+        try { localStorage.setItem('adhkiya_last_chap', String(chapId)); } catch (e) {}
+      }
+      const idx = CHAPTERS.findIndex(c => c.id == chapId);
+      const chap = CHAPTERS[idx];
+      if (!chap) return renderHome();
+      const prev = idx > 0 ? CHAPTERS[idx - 1] : null;
+      const next = idx < CHAPTERS.length - 1 ? CHAPTERS[idx + 1] : null;
+
+      const body = chap.stories.map(s => {
+        if (s.type === 'heading') return '<h3 class="subhead">' + esc(s.title) + '</h3>';
+        return '<div class="story" id="story-' + s.id + '"><p>' + esc(s.content) + '</p></div>';
+      }).join('');
+
+      contentEl.innerHTML =
+        '<div class="topnav">' + fontControlsHTML() +
+          '<button id="copyBtn" type="button">📋 نسخ الباب</button>' +
+          '<button id="indexBtn" type="button">🔎 الفهرس</button>' +
+          '<button id="homeBtn" type="button">🏠 القائمة الرئيسية</button>' +
+        '</div>' +
+        '<div class="card">' +
+          '<div class="kicker">كتاب الأذكياء · ' + esc(META.author) + '</div>' +
+          '<h2>' + esc(chap.title) + '</h2>' +
+          body +
+        '</div>' +
+        '<div class="pager">' +
+          '<button id="prevBtn"' + (prev ? '' : ' disabled') + '>← الباب السابق</button>' +
+          '<span>' + esc(chap.title.slice(0, 40)) + (chap.title.length > 40 ? '…' : '') + '</span>' +
+          '<button id="nextBtn"' + (next ? '' : ' disabled') + '>الباب التالي →</button>' +
+        '</div>';
+
+      if (prev) document.getElementById('prevBtn').onclick = () => show(prev.id);
+      if (next) document.getElementById('nextBtn').onclick = () => show(next.id);
+      document.getElementById('copyBtn').onclick = () => copyChapterText(chap);
+      document.getElementById('indexBtn').onclick = renderIndexPage;
+      document.getElementById('homeBtn').onclick = renderHome;
+      setupFontControls();
+      if (focusStoryId) {
+        const el = document.getElementById('story-' + focusStoryId);
+        if (el) { el.scrollIntoView({ block: 'start' }); el.classList.add('flash'); }
+        else window.scrollTo(0, 0);
+      } else {
+        window.scrollTo(0, 0);
+      }
+    }
+
+    let openChapIdx = -1;
+
+    function toggleChapter(i) {
+      openChapIdx = openChapIdx === i ? -1 : i;
+      CHAPTERS.forEach((c, k) => {
+        const btn = contentEl.querySelector('.chap-btn[data-chap="' + k + '"]');
+        if (!btn) return;
+        const isOpen = k === openChapIdx;
+        btn.nextElementSibling.classList.toggle('open', isOpen);
+        btn.textContent = pad(c.id) + ' — ' + c.title + (isOpen ? ' ▲' : ' ▼');
+      });
+      if (openChapIdx !== -1 && window.innerWidth < 700) {
+        show(CHAPTERS[i].id);
+      }
+    }
+
+    function renderHome() {
+      contentEl.innerHTML =
+        '<div class="topnav">' + fontControlsHTML() +
+          '<button id="indexBtn" type="button">🔎 الفهرس</button>' +
+        '</div>' +
+        '<div class="home">' +
+          '<h1>📜 كتاب الأذكياء</h1>' +
+          '<p class="desc">مصنّف فريد لابن الجوزي (ت 597هـ) يجمع أخبار العقلاء والأذكياء وفراستهم وحيلهم وحُسن تصرّفهم، ' +
+          'مرتّباً في ثلاثة وثلاثين باباً: فضل العقل وماهيته، ثم المرويّ عن الأنبياء والأمم السالفة والصحابة والخلفاء والوزراء والقضاة والعلماء والعرب، ' +
+          'ثم فنون الاحتيال والمعاريض والجواب المسكت، وأخبار الشعراء والمتطببين والنساء والصبيان وعقلاء المجانين، وأمثال الحيوان.</p>' +
+          '<h2>اختر باباً للبدء</h2>' +
+          '<div class="chap-list">' +
+            CHAPTERS.map((c, i) =>
+              '<div class="chap-item">' +
+                '<button type="button" class="chap-btn" data-chap="' + i + '">' + pad(c.id) + ' — ' + esc(c.title) + ' ▼</button>' +
+                '<div class="chap-stories">' +
+                  c.stories.filter(s => s.type === 'text').map(s =>
+                    '<button type="button" class="chap-story" data-chap-id="' + c.id + '" data-story-id="' + s.id + '">' + esc(s.title) + '</button>'
+                  ).join('') +
+                '</div>' +
+              '</div>'
+            ).join('') +
+          '</div>' +
+        '</div>';
+      const items = contentEl.querySelectorAll('.chap-item');
+      CHAPTERS.forEach((c, i) => {
+        items[i].querySelector('.chap-btn').onclick = () => toggleChapter(i);
+        items[i].querySelectorAll('.chap-story').forEach(b => {
+          b.onclick = () => show(b.dataset.chapId, b.dataset.storyId);
+        });
+      });
+      document.getElementById('indexBtn').onclick = renderIndexPage;
+      setupFontControls();
+      window.scrollTo(0, 0);
+    }
+
+    function renderIndexPage() {
+      const entries = [];
+      CHAPTERS.forEach(c => c.stories.forEach(s => {
+        if (s.type !== 'text') return;
+        entries.push({ chapId: c.id, chapTitle: c.title, storyId: s.id, title: s.title, text: s.content,
+          search: (c.title + ' ' + s.content).toLowerCase() });
+      }));
+      contentEl.innerHTML =
+        '<div class="topnav">' + fontControlsHTML() +
+          '<button id="homeBtn" type="button">🏠 القائمة الرئيسية</button>' +
+        '</div>' +
+        '<div class="card">' +
+          '<h2>🔎 الفهرس الشامل والبحث الفوري</h2>' +
+          '<p>ابحث في النص الكامل للكتاب (٣٣ باباً):</p>' +
+          '<input type="text" id="indexSearchInput" class="index-input" placeholder="اكتب كلمة أو اسماً (إياس، الفراسة، قاضٍ، خليفة، حيلة...)">' +
+          '<div class="index-results" id="indexResults">' +
+            entries.map((e, i) =>
+              '<button type="button" class="index-item" data-i="' + i + '">' +
+                '<strong>' + esc(e.chapTitle) + '</strong>' +
+                '<span class="excerpt">' + esc(e.text.slice(0, 140)) + '…</span>' +
+              '</button>').join('') +
+          '</div>' +
+        '</div>';
+      document.getElementById('homeBtn').onclick = renderHome;
+      setupFontControls();
+      document.querySelectorAll('.index-item').forEach(btn => {
+        btn.onclick = () => { const e = entries[btn.dataset.i]; show(e.chapId, e.storyId); };
+      });
+      const input = document.getElementById('indexSearchInput');
+      input.oninput = () => {
+        const q = input.value.trim().toLowerCase();
+        let shown = 0;
+        document.querySelectorAll('.index-item').forEach((btn, i) => {
+          const match = !q || entries[i].search.includes(q);
+          btn.style.display = match ? '' : 'none';
+          if (match) shown++;
+        });
+        let note = document.getElementById('noRes');
+        if (!shown) {
+          if (!note) { note = document.createElement('p'); note.id = 'noRes'; note.className = 'empty'; note.textContent = 'لا نتائج مطابقة.'; contentEl.querySelector('#indexResults').appendChild(note); }
+        } else if (note) note.remove();
+      };
+      input.focus({ preventScroll: true });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const cur = document.activeElement;
+      if (cur && (cur.tagName === 'INPUT' || cur.tagName === 'TEXTAREA')) return;
+      if (e.key === 'ArrowDown') { window.scrollBy({ top: window.innerHeight * 0.6, behavior: 'smooth' }); }
+      else if (e.key === 'ArrowUp') { window.scrollBy({ top: -window.innerHeight * 0.6, behavior: 'smooth' }); }
+    });
+
+    applyFontSize();
+    let resumed = false;
+    try {
+      const last = localStorage.getItem('adhkiya_last_chap');
+      if (last !== null) { show(last, null, false); resumed = true; }
+    } catch (e) {}
+    if (!resumed) renderHome();
+    }
+  </script>
+</body>
+</html>
