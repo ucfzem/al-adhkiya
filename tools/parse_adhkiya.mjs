@@ -160,6 +160,16 @@ for (const g of groups) {
 }
 if (current.stories.length) chapters.push(current);
 
+// عناوين مصححة بموجب طبوعات محققة (تُعيد إعادةُ البناء إنتاجَها دائماً):
+// الباب الثامن: الرقم «الثاني» ثابت (يتكرر في ترقيم الكتاب)؛ التصحيحان الحقيقيان:
+// «نبيا» → «نبيّنا» (نون ساقطة) و«المنقول من ذلك» → «المنقول من فطنة».
+const TITLE_FIXES = {
+  8: 'الباب الثاني: في سياق المنقول من فطنة أصحاب نبيّنا رضي الله عنهم أجمعين',
+};
+for (const ch of chapters) {
+  if (ch.title && TITLE_FIXES[ch.id] !== undefined) ch.title = TITLE_FIXES[ch.id];
+}
+
 const meta = {
   title: 'كتاب الأذكياء',
   author: 'الإمام ابن الجوزي (ت 597 هـ)',

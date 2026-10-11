@@ -33,7 +33,7 @@ function candidates(tok) {
 }
 
 function applyAlong(seg) {
-  if (!WORD.test(seg)) return { fixed: seg, key: null };
+  if (!WORD.test(seg)) return { fixed: strip(seg), key: null };
   for (const [bare, pre] of candidates(seg)) {
     const voc = map.get(bare);
     if (voc !== undefined) return { fixed: pre + voc, key: bare };
