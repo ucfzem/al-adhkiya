@@ -49,9 +49,7 @@ function reconstructBab33(lines) {
   const wellIdx = b.findIndex((l) => l.startsWith('# ') && l.includes('كان رجل في صحراء'));
   for (const [name, i] of [['أبو أيوب', abuIdx], ['الضبع والظبية', dzIdx], ['الضبع والثعلب', hfIdx], ['المخاطب', mukhIdx], ['البئر', wellIdx]]) {
     if (i < 0) throw new Error('reconstructBab33: خبر مفقود — ' + name);
-  }
-
-  const [lionDiv2, wellTail4] = splitExact(b[2], ' PageV01P242 ', 'قسمة الأسد');
+  }  const [lionDiv2, wellTail4] = splitExact(b[2], ' PageV01P242 ', 'قسمة الأسد');
   const [hyenaHead, lionMid23] = splitExact(b[hfIdx + 2], ' فأفلت الثعلب', 'حيلة الضبع');
   const [lionEnd28, wisdom29] = splitExact(b[hfIdx + 6], ' وذكر الحكماء', 'جواب الأسد');
   const [qilEnd30, dabbStart30] = splitExact(b[hfIdx + 8], ' وذكر أبو هلال العسكري', 'قيل للذئب');
@@ -162,10 +160,10 @@ for (const g of groups) {
 if (current.stories.length) chapters.push(current);
 
 // عناوين مصححة بموجب طبوعات محققة (تُعيد إعادةُ البناء إنتاجَها دائماً):
-// الباب الثامن: الرقم «الثاني» ثابت (يتكرر في ترقيم الكتاب)؛ التصحيحان الحقيقيان:
-// «نبيا» → «نبيّنا» (نون ساقطة) و«المنقول من ذلك» → «المنقول من فطنة».
+// الباب الثامن: العنوان في المصدر «الباب الثاني…» (خطأ ناسخ) — عُدّل إلى «الثامن» ليطابق
+// ترتيب الكتاب، مع تصحيحين: «نبيا» → «نبيّنا» (نون ساقطة) و«المنقول من ذلك» → «المنقول من فطنة».
 const TITLE_FIXES = {
-  8: 'الباب الثاني: في سياق المنقول من فطنة أصحاب نبيّنا رضي الله عنهم أجمعين',
+  8: 'الباب الثامن: في سياق المنقول من فطنة أصحاب نبيّنا رضي الله عنهم أجمعين',
 };
 for (const ch of chapters) {
   if (ch.title && TITLE_FIXES[ch.id] !== undefined) ch.title = TITLE_FIXES[ch.id];

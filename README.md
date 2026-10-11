@@ -38,12 +38,12 @@ trouve « الْأَسَدِ ») et les hamzas (أ/إ/آ/ؤ/ئ).
 
 Cette copie ne comporte pas d'en-tête autonome pour les **bāb 16** (من احتال بذكائه لبلوغ غرض)
 et **bāb 25** (طرف من حيل المحاربين) ; leur matière est donc restée rattachée à la section
-précédente. Le **bāb 8** est intitulé « الباب الثاني » dans le texte source, conformément aux
-éditions : le numéro « الثاني » y revient donc par-deux fois dans la numérotation (cf. le bāb 2).
-Les deux fautes matérielles du titre ont été corrigées **dans le titre uniquement** (le corps du
-texte est intact) : « أصحاب نبيّا » ➔ « أصحاب نبيّنا » (نون سقطت) et « المنقول من ذلك » ➔
-« المنقول من فطنة » (conformément au thème du livre), soit :
-« الباب الثاني: في سياق المنقول من فطنة أصحاب نبيّنا رضي الله عنهم أجمعين ».
+précédente. Le **bāb 8** porte dans le texte source l'intitulé « الباب الثاني » (erreur du copiste :
+le numéro « الثاني » y revient par-deux fois). Son titre a été **corrigé en « الباب الثامن »** pour
+suivre l'ordre du livre (le corps du texte reste intact), avec deux leçons matérielles du titre :
+« أصحاب نبيّا » ➔ « أصحاب نبيّنا » (نون سقطت) et « المنقول من ذلك » ➔ « المنقول من فطنة »
+(conformément au thème du livre), soit :
+« الباب الثامن: في سياق المنقول من فطنة أصحاب نبيّنا رضي الله عنهم أجمعين ».
 
 **باب 33 (fin du livre)** : dans la version imprimée, un feuillet mal relié (numéroté « 344 »,
 pour ~244) se trouve intercalé entre les pages 242 et 243 ; la copie OpenITI — comme Shamela
