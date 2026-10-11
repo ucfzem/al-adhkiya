@@ -332,8 +332,12 @@
       if (cur) out.push(cur);
       return out;
     }
-    function ttsUrl(t) {
-      return 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q=' + encodeURIComponent(t);
+    const TTS_ENDPOINTS = [
+      { base: 'https://translate.google.com/translate_tts', client: 'tw-ob' },
+      { base: 'https://translate.google.com/translate_tts', client: 'gtx' },
+    ];
+    function ttsUrl(t, ep) {
+      return ep.base + '?ie=UTF-8&client=' + ep.client + '&tl=ar&q=' + encodeURIComponent(t);
     }
 
     function setPlayUI() {
@@ -361,7 +365,6 @@
       const voice = arVoice();
       const chunks = wordChunks(text, 220);
       const queue = chunks.slice();
-      let started = false;
       playing = true;
       playKind = 'native';
       activeStoryId = null;
@@ -374,34 +377,71 @@
         u.lang = voice ? voice.lang : 'ar';
         if (voice) u.voice = voice;
         u.rate = 1;
+        let started = false;
         u.onstart = () => { started = true; };
         u.onend = fire;
         u.onerror = fire;
         window.speechSynthesis.speak(u);
+        setTimeout(() => {
+          if (playing && playKind === 'native' && !started) {
+            stopListen();
+            const rest = text.split(' ').slice(- (queue.length * 220)).join(' ');
+            playAudio(rest || text);
+          }
+        }, 2000);
       };
       fire();
-      setTimeout(() => {
-        if (playing && playKind === 'native' && !started) { stopListen(); playAudio(text); }
-      }, 1800);
     }
 
     function playAudio(text) {
       if (!text) return;
       const parts = charChunks(text, 180);
       let i = 0;
+      let consec = 0;
       audioHalt = false;
       playing = true;
       playKind = 'audio';
       setPlayUI();
-      const step = () => {
+      const tryChunk = (attempt) => {
         if (!playing || audioHalt) { if (playing) stopListen(); return; }
         if (i >= parts.length) { stopListen(); return; }
-        audioEl.src = ttsUrl(parts[i++]);
-        audioEl.play().catch(() => { if (playing) stopListen(); });
+        const ep = TTS_ENDPOINTS[(i + attempt) % TTS_ENDPOINTS.length];
+        audioEl.src = ttsUrl(parts[i], ep);
+        audioEl.onerror = () => {
+          if (!playing) return;
+          if (attempt < TTS_ENDPOINTS.length) setTimeout(() => tryChunk(attempt + 1), 1500);
+          else {
+            consec++;
+            if (consec >= 3) { failMessage(); return; }
+            i++; setTimeout(() => tryChunk(0), 2000);
+          }
+        };
+        audioEl.play().catch(() => {
+          if (!playing) return;
+          if (attempt < TTS_ENDPOINTS.length) setTimeout(() => tryChunk(attempt + 1), 1500);
+          else {
+            consec++;
+            if (consec >= 3) { failMessage(); return; }
+            i++; setTimeout(() => tryChunk(0), 2000);
+          }
+        });
       };
-      audioEl.onended = () => setTimeout(step, 300);
-      audioEl.onerror = () => { if (playing) stopListen(); };
-      step();
+      audioEl.onended = () => { i++; setTimeout(() => tryChunk(0), 700); };
+      tryChunk(0);
+    }
+
+    function failMessage() {
+      window.speechSynthesis.cancel();
+      audioHalt = true;
+      playing = false;
+      playKind = null;
+      activeStoryId = null;
+      setPlayUI();
+      const btn = document.getElementById('listenBtn');
+      if (btn) {
+        btn.textContent = '🔊 استمع';
+        btn.title = 'توقف: الخدمة الصوتية الخارجية قيّدت هذا الجهاز مؤقتاً؛ انتظر دقيقة ثم أعِد المحاولة';
+      }
     }
 
     function toggleListen(chap) {
