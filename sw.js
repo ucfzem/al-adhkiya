@@ -1,7 +1,11 @@
-const CACHE = 'adhkiya-cache-v1.0.0';
+const CACHE = 'adhkiya-cache-v1.0.1';
 const CORE = [
   './',
   './index.html',
+  './manifest.json',
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png',
   './all-adhkiya.js',
   './audio/manifest.js',
   './data/adhkiya.json'
